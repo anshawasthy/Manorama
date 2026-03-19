@@ -31,6 +31,9 @@ async function fetchGoogleAPI(action, payload = {}) {
   try {
     const res = await fetch(API, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'
+      },
       body: JSON.stringify({ action, payload })
     });
     const data = await res.json();
