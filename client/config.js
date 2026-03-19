@@ -5,4 +5,4 @@
 //   Local dev (separate):      'http://localhost:3000'
 //   Production:                'https://your-api.onrender.com'
 
-const API_BASE_URL = '';
+const API_BASE_URL = 'https://manorama-qrnr.onrender.com';
