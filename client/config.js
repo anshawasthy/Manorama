@@ -1,8 +1,5 @@
-// ===== Manorama — Frontend Configuration =====
-// Change API_BASE_URL to your deployed backend URL before deploying the frontend.
-// Examples:
-//   Local dev (same machine):  ''  (empty string — uses same origin)
-//   Local dev (separate):      'http://localhost:3000'
-//   Production:                'https://your-api.onrender.com'
-
-const API_BASE_URL = 'https://manorama-qrnr.onrender.com';
+// ============================================
+// Google Apps Script Web App URL
+// Paste the URL you get after deploying Code.gs
+// ============================================
+const API_BASE_URL = 'https://script.google.com/macros/s/AKfycbx7yXjds90pSUhskVilEWWymWLykEhKN0HELVnR1xrihKEQknEhV_ZZAa0AtkENi9_U6Q/exec';

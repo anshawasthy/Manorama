@@ -26,11 +26,35 @@ function assetURL(path) {
   return API + path;
 }
 
+// ===== GOOGLE SHEETS API WRAPPER =====
+async function fetchGoogleAPI(action, payload = {}) {
+  try {
+    const res = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action, payload })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    return data;
+  } catch (err) {
+    console.error(`Google API Error [${action}]:`, err);
+    throw err;
+  }
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+  });
+}
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
   initClock();
-  initSSE();
   loadDashboard();
   loadProducts();
   initProductModal();
@@ -81,31 +105,7 @@ function initClock() {
   setInterval(tick, 30000);
 }
 
-// ===== SSE =====
-function initSSE() {
-  const evtSource = new EventSource(`${API}/api/events`);
-  evtSource.onmessage = (e) => {
-    try {
-      const data = JSON.parse(e.data);
-      if (data.type === 'db-update') {
-        // Refresh whichever view is active
-        const activeView = document.querySelector('.view.active');
-        if (activeView) {
-          const id = activeView.id;
-          if (id === 'view-dashboard') loadDashboard();
-          if (id === 'view-inventory') loadProducts();
-          if (id === 'view-billing') loadBillingProducts();
-          if (id === 'view-sales') loadSales();
-        }
-      }
-    } catch (err) {
-      console.error('SSE message parse error:', err);
-    }
-  };
-  evtSource.onerror = () => {
-    console.warn('SSE connection lost. Reconnecting automatically...');
-  };
-}
+
 
 // ===== TOAST =====
 function showToast(msg, type = 'info') {
@@ -136,29 +136,69 @@ function fmtDate(iso) {
 // ===== DASHBOARD =====
 async function loadDashboard() {
   try {
-    const res = await fetch(`${API}/api/dashboard`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const d = await res.json();
+    let [products, bills] = await Promise.all([
+      fetchGoogleAPI('GET_PRODUCTS'),
+      fetchGoogleAPI('GET_BILLS')
+    ]);
+    
+    products = products || [];
+    bills = bills || [];
 
-    document.getElementById('stat-today-revenue').textContent = fmt(d.todayRevenue);
-    document.getElementById('stat-today-profit').textContent = fmt(d.todayProfit);
-    document.getElementById('stat-today-bills').textContent = d.todayBills;
-    document.getElementById('stat-total-products').textContent = d.totalProducts;
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    let todayRevenue = 0, todayProfit = 0, todayBills = 0;
+    let totalRevenue = 0, totalProfit = 0, totalInventoryValue = 0, totalItems = 0;
+    
+    products.forEach(p => {
+      totalItems++;
+      totalInventoryValue += p.costPrice * p.quantity;
+    });
 
-    document.getElementById('stat-total-revenue').textContent = fmt(d.totalRevenue);
-    document.getElementById('stat-total-profit').textContent = fmt(d.totalProfit);
-    document.getElementById('stat-inv-value').textContent = fmt(d.totalInventoryValue);
-    document.getElementById('stat-total-items').textContent = d.totalItems.toLocaleString();
+    const dailySalesMap = {};
+    const recentSales = [];
+
+    bills.forEach(b => {
+      totalRevenue += b.totalAmount;
+      totalProfit += b.totalProfit;
+      
+      const bDate = new Date(b.createdAt);
+      if (bDate >= startOfDay) {
+        todayRevenue += b.totalAmount;
+        todayProfit += b.totalProfit;
+        todayBills++;
+      }
+      
+      const dayKey = bDate.toISOString().split('T')[0];
+      if (!dailySalesMap[dayKey]) dailySalesMap[dayKey] = { date: dayKey, revenue: 0, profit: 0 };
+      dailySalesMap[dayKey].revenue += b.totalAmount;
+      dailySalesMap[dayKey].profit += b.totalProfit;
+      
+      if (recentSales.length < 5) recentSales.push(b);
+    });
+
+    const dailySales = Object.values(dailySalesMap).sort((a,b) => a.date.localeCompare(b.date));
+    const lowStockProducts = products.filter(p => p.quantity <= 5);
+
+    document.getElementById('stat-today-revenue').textContent = fmt(todayRevenue);
+    document.getElementById('stat-today-profit').textContent = fmt(todayProfit);
+    document.getElementById('stat-today-bills').textContent = todayBills;
+    document.getElementById('stat-total-products').textContent = totalItems;
+
+    document.getElementById('stat-total-revenue').textContent = fmt(totalRevenue);
+    document.getElementById('stat-total-profit').textContent = fmt(totalProfit);
+    document.getElementById('stat-inv-value').textContent = fmt(totalInventoryValue);
+    document.getElementById('stat-total-items').textContent = totalItems.toLocaleString();
 
     // Chart
-    renderChart(d.dailySales);
+    renderChart(dailySales);
 
     // Recent sales
     const tbody = document.getElementById('recent-sales-body');
-    if (d.recentSales.length === 0) {
+    if (recentSales.length === 0) {
       tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">No sales yet</td></tr>';
     } else {
-      tbody.innerHTML = d.recentSales.map(s => `
+      tbody.innerHTML = recentSales.map(s => `
         <tr>
           <td>${escapeHTML(s.customerName)}</td>
           <td>${fmt(s.totalAmount)}</td>
@@ -170,10 +210,10 @@ async function loadDashboard() {
 
     // Low stock
     const lowEl = document.getElementById('low-stock-list');
-    if (d.lowStockProducts.length === 0) {
+    if (lowStockProducts.length === 0) {
       lowEl.innerHTML = '<p class="empty-state">All products stocked well! 👍</p>';
     } else {
-      lowEl.innerHTML = d.lowStockProducts.map(p => `
+      lowEl.innerHTML = lowStockProducts.map(p => `
         <div class="low-stock-item">
           <span class="name">${escapeHTML(p.name)}</span>
           <span class="qty">${p.quantity} left</span>
@@ -208,9 +248,8 @@ function renderChart(dailySales) {
 // ===== PRODUCTS / INVENTORY =====
 async function loadProducts() {
   try {
-    const res = await fetch(`${API}/api/products`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    allProducts = await res.json();
+    const products = await fetchGoogleAPI('GET_PRODUCTS');
+    allProducts = products || [];
     renderProducts(allProducts);
   } catch (err) {
     console.error('Products load error:', err);
@@ -303,31 +342,33 @@ function initProductModal() {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('product-id').value;
-    const formData = new FormData();
-    formData.append('name', document.getElementById('product-name').value);
-    formData.append('costPrice', document.getElementById('product-cost').value);
-    formData.append('sellingPrice', document.getElementById('product-selling').value);
-    formData.append('quantity', document.getElementById('product-quantity').value);
+    const name = document.getElementById('product-name').value;
+    const costPrice = parseFloat(document.getElementById('product-cost').value);
+    const sellingPrice = parseFloat(document.getElementById('product-selling').value);
+    const quantity = parseInt(document.getElementById('product-quantity').value, 10);
 
+    let imageBase64 = undefined;
     const imageFile = imageInput.files[0];
-    if (imageFile) formData.append('image', imageFile);
+    if (imageFile) {
+      imageBase64 = await fileToBase64(imageFile);
+    }
+
+    const payload = { id, name, costPrice, sellingPrice, quantity };
+    if (imageBase64) payload.imageBase64 = imageBase64;
 
     try {
-      const url = id ? `${API}/api/products/${id}` : `${API}/api/products`;
-      const method = id ? 'PUT' : 'POST';
-      const res = await fetch(url, { method, body: formData });
-
-      if (!res.ok) {
-        const err = await res.json();
-        showToast(err.error || 'Failed to save product', 'error');
-        return;
+      if (id) {
+        await fetchGoogleAPI('UPDATE_PRODUCT', payload);
+        showToast('Product updated!', 'success');
+      } else {
+        await fetchGoogleAPI('CREATE_PRODUCT', payload);
+        showToast('Product added!', 'success');
       }
 
-      showToast(id ? 'Product updated!' : 'Product added!', 'success');
       closeProductModal();
       loadProducts();
     } catch (err) {
-      showToast('Network error', 'error');
+      showToast(err.message || 'Network error', 'error');
     }
   });
 }
@@ -366,27 +407,18 @@ function closeProductModal() {
   document.getElementById('product-modal').classList.remove('active');
 }
 
-async function editProduct(id) {
-  try {
-    const res = await fetch(`${API}/api/products/${encodeURIComponent(id)}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const product = await res.json();
-    openProductModal(product);
-  } catch (err) {
-    showToast('Failed to load product', 'error');
-  }
+function editProduct(id) {
+  const product = allProducts.find(p => p.id === id);
+  if (product) openProductModal(product);
+  else showToast('Failed to load product', 'error');
 }
 
 async function deleteProduct(id) {
   if (!confirm('Are you sure you want to delete this product?')) return;
   try {
-    const res = await fetch(`${API}/api/products/${encodeURIComponent(id)}`, { method: 'DELETE' });
-    if (res.ok) {
-      showToast('Product deleted', 'success');
-      loadProducts();
-    } else {
-      showToast('Failed to delete', 'error');
-    }
+    await fetchGoogleAPI('DELETE_PRODUCT', { id });
+    showToast('Product deleted', 'success');
+    loadProducts();
   } catch (err) {
     console.error('Delete product error:', err);
     showToast('Network error', 'error');
@@ -455,9 +487,8 @@ function initBilling() {
 
 async function loadBillingProducts() {
   try {
-    const res = await fetch(`${API}/api/products`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    allProducts = await res.json();
+    const products = await fetchGoogleAPI('GET_PRODUCTS');
+    allProducts = products || [];
     const available = allProducts.filter(p => p.quantity > 0);
     renderBillingProducts(available);
   } catch (err) {
@@ -609,23 +640,28 @@ async function generateBill() {
   const paymentMethod = document.getElementById('payment-method').value;
   const items = cart.map(c => ({ productId: c.productId, quantity: c.quantity }));
 
+  let totalAmount = 0;
+  let totalProfit = 0;
+  cart.forEach(item => {
+    totalAmount += item.sellingPrice * item.quantity;
+    totalProfit += (item.sellingPrice - item.costPrice) * item.quantity;
+  });
+
   try {
-    const res = await fetch(`${API}/api/bills`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items, customerName, paymentMethod }),
-    });
-
-    if (!res.ok) {
-      const err = await res.json();
-      showToast(err.error || 'Failed to generate bill', 'error');
-      return;
-    }
-
-    const bill = await res.json();
+    const payload = { customerName, paymentMethod, items, totalAmount, totalProfit };
+    const result = await fetchGoogleAPI('CREATE_BILL', payload);
+    
     showToast('Bill generated successfully!', 'success');
 
-    // Show receipt
+    // Build local bill object for receipt
+    const bill = {
+      id: result.id,
+      customerName,
+      paymentMethod,
+      items: cart.map(c => ({ productName: c.name, quantity: c.quantity, sellingPrice: c.sellingPrice, total: c.sellingPrice * c.quantity })),
+      totalAmount,
+      createdAt: new Date().toISOString()
+    };
     showReceipt(bill);
 
     // Clear cart
@@ -636,9 +672,12 @@ async function generateBill() {
     document.getElementById('cash-received').value = '';
     document.getElementById('change-display').style.display = 'none';
     document.getElementById('cash-change-section').style.display = 'block';
+
+    // Refresh products fully to get actual new stock levels from the Google Sheet
+    loadProducts();
     loadBillingProducts();
   } catch (err) {
-    showToast('Network error', 'error');
+    showToast(err.message || 'Network error', 'error');
   }
 }
 
@@ -681,15 +720,16 @@ function showReceipt(bill) {
 // ===== SALES HISTORY =====
 async function loadSales() {
   try {
-    const res = await fetch(`${API}/api/bills`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const bills = await res.json();
+    const bills = await fetchGoogleAPI('GET_BILLS');
     const tbody = document.getElementById('sales-body');
 
-    if (bills.length === 0) {
+    if (!bills || bills.length === 0) {
       tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted)">No bills yet</td></tr>';
       return;
     }
+    
+    // Store globally for viewReceipt locally
+    window.allBills = bills;
 
     tbody.innerHTML = bills.map(b => `
       <tr>
@@ -708,14 +748,8 @@ async function loadSales() {
   }
 }
 
-async function viewBillReceipt(billId) {
-  try {
-    const res = await fetch(`${API}/api/bills/${encodeURIComponent(billId)}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const bill = await res.json();
-    showReceipt(bill);
-  } catch (err) {
-    console.error('View bill error:', err);
-    showToast('Failed to load bill', 'error');
-  }
+function viewBillReceipt(billId) {
+  if (!window.allBills) return;
+  const bill = window.allBills.find(b => b.id === billId);
+  if (bill) showReceipt(bill);
 }
