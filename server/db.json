@@ -1,0 +1,266 @@
+{
+  "products": [],
+  "bills": [
+    {
+      "id": "dae89891-f337-4b96-aacf-b669453a41f5",
+      "customerName": "Walk-in Customer",
+      "paymentMethod": "UPI",
+      "items": [
+        {
+          "productId": "423dea24-d642-4bcc-9961-28b7b03b8ba6",
+          "productName": "Dhoop",
+          "costPrice": 10,
+          "sellingPrice": 18,
+          "quantity": 1,
+          "total": 18,
+          "profit": 8
+        }
+      ],
+      "totalAmount": 18,
+      "totalProfit": 8,
+      "createdAt": "2026-03-18T18:09:21.833Z"
+    },
+    {
+      "id": "27d1c7df-586b-4817-be1a-f88b55aee153",
+      "customerName": "anil",
+      "paymentMethod": "UPI",
+      "items": [
+        {
+          "productId": "423dea24-d642-4bcc-9961-28b7b03b8ba6",
+          "productName": "Dhoop",
+          "costPrice": 10,
+          "sellingPrice": 18,
+          "quantity": 1,
+          "total": 18,
+          "profit": 8
+        }
+      ],
+      "totalAmount": 18,
+      "totalProfit": 8,
+      "createdAt": "2026-03-18T18:09:49.539Z"
+    },
+    {
+      "id": "890e2d20-7e9f-4e5d-9834-f2eff3c58344",
+      "customerName": "Walk-in Customer",
+      "paymentMethod": "Cash",
+      "items": [
+        {
+          "productId": "423dea24-d642-4bcc-9961-28b7b03b8ba6",
+          "productName": "Dhoop",
+          "costPrice": 10,
+          "sellingPrice": 18,
+          "quantity": 2,
+          "total": 36,
+          "profit": 16
+        }
+      ],
+      "totalAmount": 36,
+      "totalProfit": 16,
+      "createdAt": "2026-03-18T18:11:58.517Z"
+    },
+    {
+      "id": "21d7c199-b6fb-4f4f-9b3c-ea1cd87e904a",
+      "customerName": "Walk-in Customer",
+      "paymentMethod": "Cash",
+      "items": [
+        {
+          "productId": "af346385-649d-4391-b0af-e331abef7a84",
+          "productName": "Dhoop",
+          "costPrice": 19,
+          "sellingPrice": 20,
+          "quantity": 1,
+          "total": 20,
+          "profit": 1
+        },
+        {
+          "productId": "a1b02048-28b2-45a5-a724-733aa73a4a64",
+          "productName": "dhoop",
+          "costPrice": 10,
+          "sellingPrice": 30,
+          "quantity": 3,
+          "total": 90,
+          "profit": 60
+        }
+      ],
+      "totalAmount": 110,
+      "totalProfit": 61,
+      "createdAt": "2026-03-19T08:00:58.475Z"
+    },
+    {
+      "id": "070e70c2-1c39-4051-b1b7-1dae61863087",
+      "customerName": "Walk-in Customer",
+      "paymentMethod": "Cash",
+      "items": [
+        {
+          "productId": "423dea24-d642-4bcc-9961-28b7b03b8ba6",
+          "productName": "Dhoop",
+          "costPrice": 10,
+          "sellingPrice": 18,
+          "quantity": 1,
+          "total": 18,
+          "profit": 8
+        }
+      ],
+      "totalAmount": 18,
+      "totalProfit": 8,
+      "createdAt": "2026-03-19T08:06:39.420Z"
+    },
+    {
+      "id": "31bc6f98-48dc-4890-8aed-dd6c46301309",
+      "customerName": "Walk-in Customer",
+      "paymentMethod": "Cash",
+      "items": [
+        {
+          "productId": "423dea24-d642-4bcc-9961-28b7b03b8ba6",
+          "productName": "Dhoop",
+          "costPrice": 10,
+          "sellingPrice": 18,
+          "quantity": 1,
+          "total": 18,
+          "profit": 8
+        }
+      ],
+      "totalAmount": 18,
+      "totalProfit": 8,
+      "createdAt": "2026-03-19T08:08:12.186Z"
+    },
+    {
+      "id": "410ea41c-aa09-4d76-a80b-0a8ec780f949",
+      "customerName": "asd",
+      "paymentMethod": "Cash",
+      "items": [
+        {
+          "productId": "423dea24-d642-4bcc-9961-28b7b03b8ba6",
+          "productName": "Dhoop",
+          "costPrice": 10,
+          "sellingPrice": 18,
+          "quantity": 2,
+          "total": 36,
+          "profit": 16
+        },
+        {
+          "productId": "a1b02048-28b2-45a5-a724-733aa73a4a64",
+          "productName": "dhoop",
+          "costPrice": 10,
+          "sellingPrice": 30,
+          "quantity": 1,
+          "total": 30,
+          "profit": 20
+        },
+        {
+          "productId": "af346385-649d-4391-b0af-e331abef7a84",
+          "productName": "Dhoop",
+          "costPrice": 19,
+          "sellingPrice": 20,
+          "quantity": 1,
+          "total": 20,
+          "profit": 1
+        }
+      ],
+      "totalAmount": 86,
+      "totalProfit": 37,
+      "createdAt": "2026-03-19T08:11:53.982Z"
+    },
+    {
+      "id": "8f421a52-8407-4894-9c1b-5b4173cac640",
+      "customerName": "Walk-in Customer",
+      "paymentMethod": "UPI",
+      "items": [
+        {
+          "productId": "118f9407-6c56-41e4-bd04-80c29b241a9d",
+          "productName": "Forest Premium Dhoop",
+          "costPrice": 50,
+          "sellingPrice": 80,
+          "quantity": 2,
+          "total": 160,
+          "profit": 60
+        }
+      ],
+      "totalAmount": 160,
+      "totalProfit": 60,
+      "createdAt": "2026-03-19T08:16:33.983Z"
+    }
+  ],
+  "sales": [
+    {
+      "id": "dae89891-f337-4b96-aacf-b669453a41f5",
+      "billId": "dae89891-f337-4b96-aacf-b669453a41f5",
+      "customerName": "Walk-in Customer",
+      "paymentMethod": "UPI",
+      "totalAmount": 18,
+      "totalProfit": 8,
+      "itemCount": 1,
+      "createdAt": "2026-03-18T18:09:21.833Z"
+    },
+    {
+      "id": "27d1c7df-586b-4817-be1a-f88b55aee153",
+      "billId": "27d1c7df-586b-4817-be1a-f88b55aee153",
+      "customerName": "anil",
+      "paymentMethod": "UPI",
+      "totalAmount": 18,
+      "totalProfit": 8,
+      "itemCount": 1,
+      "createdAt": "2026-03-18T18:09:49.539Z"
+    },
+    {
+      "id": "890e2d20-7e9f-4e5d-9834-f2eff3c58344",
+      "billId": "890e2d20-7e9f-4e5d-9834-f2eff3c58344",
+      "customerName": "Walk-in Customer",
+      "paymentMethod": "Cash",
+      "totalAmount": 36,
+      "totalProfit": 16,
+      "itemCount": 2,
+      "createdAt": "2026-03-18T18:11:58.517Z"
+    },
+    {
+      "id": "21d7c199-b6fb-4f4f-9b3c-ea1cd87e904a",
+      "billId": "21d7c199-b6fb-4f4f-9b3c-ea1cd87e904a",
+      "customerName": "Walk-in Customer",
+      "paymentMethod": "Cash",
+      "totalAmount": 110,
+      "totalProfit": 61,
+      "itemCount": 4,
+      "createdAt": "2026-03-19T08:00:58.475Z"
+    },
+    {
+      "id": "070e70c2-1c39-4051-b1b7-1dae61863087",
+      "billId": "070e70c2-1c39-4051-b1b7-1dae61863087",
+      "customerName": "Walk-in Customer",
+      "paymentMethod": "Cash",
+      "totalAmount": 18,
+      "totalProfit": 8,
+      "itemCount": 1,
+      "createdAt": "2026-03-19T08:06:39.420Z"
+    },
+    {
+      "id": "31bc6f98-48dc-4890-8aed-dd6c46301309",
+      "billId": "31bc6f98-48dc-4890-8aed-dd6c46301309",
+      "customerName": "Walk-in Customer",
+      "paymentMethod": "Cash",
+      "totalAmount": 18,
+      "totalProfit": 8,
+      "itemCount": 1,
+      "createdAt": "2026-03-19T08:08:12.186Z"
+    },
+    {
+      "id": "410ea41c-aa09-4d76-a80b-0a8ec780f949",
+      "billId": "410ea41c-aa09-4d76-a80b-0a8ec780f949",
+      "customerName": "asd",
+      "paymentMethod": "Cash",
+      "totalAmount": 86,
+      "totalProfit": 37,
+      "itemCount": 4,
+      "createdAt": "2026-03-19T08:11:53.982Z"
+    },
+    {
+      "id": "8f421a52-8407-4894-9c1b-5b4173cac640",
+      "billId": "8f421a52-8407-4894-9c1b-5b4173cac640",
+      "customerName": "Walk-in Customer",
+      "paymentMethod": "UPI",
+      "totalAmount": 160,
+      "totalProfit": 60,
+      "itemCount": 2,
+      "createdAt": "2026-03-19T08:16:33.983Z"
+    }
+  ]
+}

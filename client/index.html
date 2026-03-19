@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manorama — Inventory & POS</title>
+  <meta name="description" content="Manorama Inventory Management & Point of Sale system. Manage products, create bills, and track sales in real time." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <img src="logo.png" alt="Manorama" class="logo-img" />
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-btn active" data-view="dashboard" id="nav-dashboard">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Dashboard</span>
+      </button>
+      <button class="nav-btn" data-view="inventory" id="nav-inventory">
+        <span class="nav-icon">📋</span>
+        <span class="nav-label">Inventory</span>
+      </button>
+      <button class="nav-btn" data-view="billing" id="nav-billing">
+        <span class="nav-icon">🧾</span>
+        <span class="nav-label">Billing</span>
+      </button>
+      <button class="nav-btn" data-view="sales" id="nav-sales">
+        <span class="nav-icon">💰</span>
+        <span class="nav-label">Sales History</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="live-dot"></div>
+      <span>Live Updates Active</span>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <button class="hamburger" id="hamburger-btn">☰</button>
+      <h2 class="page-title" id="page-title">Dashboard</h2>
+      <div class="topbar-right">
+        <span class="clock" id="clock"></span>
+      </div>
+    </header>
+
+    <!-- ========== DASHBOARD VIEW ========== -->
+    <section class="view active" id="view-dashboard">
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card stat-revenue">
+          <div class="stat-icon">💵</div>
+          <div class="stat-info">
+            <p class="stat-label">Today's Revenue</p>
+            <h3 class="stat-value" id="stat-today-revenue">₹0</h3>
+          </div>
+        </div>
+        <div class="stat-card stat-profit">
+          <div class="stat-icon">📈</div>
+          <div class="stat-info">
+            <p class="stat-label">Today's Profit</p>
+            <h3 class="stat-value" id="stat-today-profit">₹0</h3>
+          </div>
+        </div>
+        <div class="stat-card stat-bills">
+          <div class="stat-icon">🧾</div>
+          <div class="stat-info">
+            <p class="stat-label">Today's Bills</p>
+            <h3 class="stat-value" id="stat-today-bills">0</h3>
+          </div>
+        </div>
+        <div class="stat-card stat-products">
+          <div class="stat-icon">📦</div>
+          <div class="stat-info">
+            <p class="stat-label">Total Products</p>
+            <h3 class="stat-value" id="stat-total-products">0</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="card overview-card">
+          <h3 class="card-title">All-Time Overview</h3>
+          <div class="overview-stats">
+            <div class="overview-item">
+              <span class="overview-label">Total Revenue</span>
+              <span class="overview-value" id="stat-total-revenue">₹0</span>
+            </div>
+            <div class="overview-item">
+              <span class="overview-label">Total Profit</span>
+              <span class="overview-value" id="stat-total-profit">₹0</span>
+            </div>
+            <div class="overview-item">
+              <span class="overview-label">Inventory Value</span>
+              <span class="overview-value" id="stat-inv-value">₹0</span>
+            </div>
+            <div class="overview-item">
+              <span class="overview-label">Items in Stock</span>
+              <span class="overview-value" id="stat-total-items">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card chart-card">
+          <h3 class="card-title">Last 7 Days</h3>
+          <div class="chart-container" id="chart-container"></div>
+        </div>
+      </div>
+
+      <div class="dashboard-bottom-grid">
+        <div class="card">
+          <h3 class="card-title">Recent Sales</h3>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Amount</th>
+                  <th>Profit</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="recent-sales-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">⚠️ Low Stock Alerts</h3>
+          <div class="low-stock-list" id="low-stock-list">
+            <p class="empty-state">All products stocked well!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== INVENTORY VIEW ========== -->
+    <section class="view" id="view-inventory">
+      <div class="view-header">
+        <div class="search-box">
+          <input type="text" id="inventory-search" placeholder="Search products..." />
+        </div>
+        <button class="btn btn-primary" id="add-product-btn">+ Add Product</button>
+      </div>
+      <div class="products-grid" id="products-grid">
+        <p class="empty-state">No products yet. Add your first product!</p>
+      </div>
+
+      <!-- Product Modal -->
+      <div class="modal-overlay" id="product-modal">
+        <div class="modal">
+          <div class="modal-header">
+            <h3 id="modal-title">Add Product</h3>
+            <button class="modal-close" id="modal-close">&times;</button>
+          </div>
+          <form id="product-form" enctype="multipart/form-data">
+            <input type="hidden" id="product-id" />
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label for="product-name">Product Name *</label>
+                <input type="text" id="product-name" required placeholder="e.g. Basmati Rice 1kg" />
+              </div>
+              <div class="form-group">
+                <label for="product-cost">Cost Price (₹) *</label>
+                <input type="number" id="product-cost" required min="0" step="0.01" placeholder="0.00" />
+              </div>
+              <div class="form-group">
+                <label for="product-selling">Selling Price (₹) *</label>
+                <input type="number" id="product-selling" required min="0" step="0.01" placeholder="0.00" />
+              </div>
+              <div class="form-group">
+                <label for="product-quantity">Quantity *</label>
+                <input type="number" id="product-quantity" required min="0" placeholder="0" />
+              </div>
+              <div class="form-group full-width">
+                <label for="product-image">Product Image</label>
+                <div class="image-upload-area" id="image-upload-area">
+                  <input type="file" id="product-image" accept="image/*" />
+                  <div class="upload-placeholder" id="upload-placeholder">
+                    <span class="upload-icon">📷</span>
+                    <p>Click or drag to upload image</p>
+                  </div>
+                  <img id="image-preview" src="" alt="Preview" style="display:none" />
+                </div>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" id="modal-cancel">Cancel</button>
+              <button type="submit" class="btn btn-primary" id="modal-save">Save Product</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== BILLING VIEW ========== -->
+    <section class="view" id="view-billing">
+      <div class="billing-layout">
+        <div class="billing-products">
+          <div class="search-box">
+            <input type="text" id="billing-search" placeholder="Search products to add..." />
+          </div>
+          <div class="billing-product-list" id="billing-product-list"></div>
+        </div>
+        <div class="billing-cart">
+          <div class="cart-header">
+            <h3>🛒 Current Bill</h3>
+            <input type="text" id="customer-name" placeholder="Customer Name (optional)" class="customer-input" />
+            <select id="payment-method" class="customer-input" style="margin-top:8px;">
+              <option value="Cash">💵 Cash</option>
+              <option value="UPI">📱 UPI</option>
+              <option value="Card">💳 Card</option>
+              <option value="Other">📝 Other</option>
+            </select>
+          </div>
+          <div class="cart-items" id="cart-items">
+            <p class="empty-state">No items added yet</p>
+          </div>
+          <div class="cart-summary">
+            <div class="cart-total">
+              <span>Total:</span>
+              <span id="cart-total-amount">₹0.00</span>
+            </div>
+            <div class="cart-profit-line">
+              <span>Est. Profit:</span>
+              <span id="cart-profit-amount">₹0.00</span>
+            </div>
+            <div class="cash-change-section" id="cash-change-section" style="display:none;">
+              <label for="cash-received" style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Cash Received (₹)</label>
+              <input type="number" id="cash-received" class="customer-input" style="margin-top:4px;margin-bottom:4px;" placeholder="0.00" min="0" step="0.01" />
+              <div class="change-display" id="change-display" style="display:none;">
+                <span>Change to Return:</span>
+                <span id="change-amount" style="font-weight:700;font-size:18px;color:var(--success);">₹0.00</span>
+              </div>
+            </div>
+            <button class="btn btn-success btn-lg" id="generate-bill-btn" disabled>
+              Generate Bill
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Receipt Modal -->
+      <div class="modal-overlay" id="receipt-modal">
+        <div class="modal receipt-modal">
+          <div class="modal-header">
+            <h3>Receipt</h3>
+            <button class="modal-close" id="receipt-close">&times;</button>
+          </div>
+          <div id="receipt-content" class="receipt-content"></div>
+          <div class="form-actions">
+            <button class="btn btn-primary" id="print-receipt-btn">🖨️ Print Receipt</button>
+            <button class="btn btn-secondary" id="receipt-done-btn">Done</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SALES VIEW ========== -->
+    <section class="view" id="view-sales">
+      <div class="card">
+        <h3 class="card-title">Sales History</h3>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Bill ID</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Amount</th>
+                <th>Profit</th>
+                <th>Payment</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="sales-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
