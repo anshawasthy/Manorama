@@ -11,19 +11,25 @@ const PORT = process.env.PORT || 3000;
 // --------------- Middleware ---------------
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
-  : null; // null = allow all (for local dev)
+  : [];
 
-app.use(cors(allowedOrigins ? {
+app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like server-to-server or curl)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  }
-} : {}));
+    // allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
 
+    // allow all if no env set (development)
+    if (allowedOrigins.length === 0) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(null, false); // don't crash server
+  },
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'client')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
