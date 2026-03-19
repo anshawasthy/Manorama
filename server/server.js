@@ -17,9 +17,18 @@ const cors = require("cors");
 
 app.use(cors({
   origin: "*", // allow all (fix now)
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
+app.options("*", cors());
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  next();
+});
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'client')));
@@ -50,6 +59,7 @@ app.get('/api/events', (req, res) => {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
     Connection: 'keep-alive',
+    'Access-Control-Allow-Origin': '*'
   });
   res.write('data: {"type":"connected"}\n\n');
   sseClients.push(res);
